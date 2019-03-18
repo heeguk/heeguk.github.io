@@ -1,5 +1,3 @@
----
-title: robots
----
 User-agent: *
-Sitemap: <{{site.url}}/sitemap.xml>
+Allow: /
+Sitemap: http://heeguk.github.io/sitemap.xml
