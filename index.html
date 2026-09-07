@@ -356,7 +356,7 @@
     <p class="fig-label">Topology</p>
     <figure>
       <div class="plate">
-        <svg viewBox="0 0 1020 366" role="img"
+        <svg viewBox="0 0 1020 372" role="img"
              aria-label="Before: one region with a single cluster running application, Redis, Kafka and Elasticsearch, and no failover target. After: three clusters across regions, each running application and all infrastructure.">
           <defs>
             <marker id="an" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -382,9 +382,9 @@
           <text class="t-sub"  x="168" y="254">Kafka</text>
           <text class="t-sub"  x="168" y="274">Elasticsearch</text>
 
-          <text class="t-crit" x="24" y="336">no failover target</text>
+          <text class="t-crit" x="24" y="330">no failover target</text>
 
-          <line class="divider" x1="510" y1="18" x2="510" y2="348"/>
+          <line class="divider" x1="510" y1="18" x2="510" y2="356"/>
 
           <!-- ===== AFTER ===== -->
           <text class="t-eye" x="536" y="26">AFTER</text>
@@ -420,14 +420,16 @@
           <text class="t-sub"  x="858" y="254">Kafka</text>
           <text class="t-sub"  x="858" y="274">Elasticsearch</text>
 
-          <text class="t-sig" x="536" y="336">application scaled out first, infrastructure cut over in one step</text>
+          <text class="t-sig" x="536" y="330">application scaled out incrementally,</text>
+          <text class="t-sig" x="536" y="346">infrastructure went straight from one cluster to three</text>
         </svg>
       </div>
       <figcaption>
         The application and the infrastructure did not move on the same schedule. The application scaled
-        out first, while <b>Redis, Kafka and Elasticsearch were cut over to three clusters in one step</b>,
-        because a stateful layer with its own replication semantics is far harder to leave in a half
-        migrated state than a stateless tier.
+        out incrementally from one cluster to two and then three, while Redis, Kafka and Elasticsearch went
+        directly from one cluster to three, <b>skipping the intermediate two-cluster state</b> because a
+        stateful layer with its own replication semantics is far harder to leave half-migrated than a
+        stateless tier.
       </figcaption>
     </figure>
 
