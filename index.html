@@ -1,44 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Backend engineering case studies: high availability, distributed systems, and AI-assisted operations.">
-<meta name="author" content="Heeguk Son">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Heeguk Son, Backend Software Engineer">
-<meta property="og:description" content="High availability, distributed systems, and AI-assisted operations. Case studies from four years on a large-scale commerce backend.">
-<meta name="twitter:card" content="summary_large_image">
-<style>
-  *, *::before, *::after { box-sizing: border-box; }
-  html { color-scheme: light dark; }
-  body { margin: 0; }
-  img { max-width: 100%; }
-  [hidden] { display: none !important; }
-</style>
-<title>Heeguk Son Portfolio</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Azeret+Mono:wght@400;500&display=swap">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Backend engineering case studies: high availability, distributed systems, and AI-assisted operations.">
+  <meta name="author" content="Heeguk Son">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Heeguk Son, Backend Software Engineer">
+  <meta property="og:description" content="High availability, distributed systems, and AI-assisted operations. Case studies from four years on a large-scale commerce backend.">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { color-scheme: light dark; }
+    body { margin: 0; }
+    img { max-width: 100%; }
+    [hidden] { display: none !important; }
+  </style>
+  <title>Heeguk Son Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Azeret+Mono:wght@400;500&display=swap">
 
-<style>
-  :root {
-    --bg:        #EDEEEA;
-    --surface:   #FFFFFF;
-    --surface-2: #E2E4DF;
-    --ink:       #161918;
-    --ink-2:     #4E5451;
-    --ink-3:     #7B817D;
-    --rule:      #CBCFC9;
-    --rule-soft: #DDE0DB;
-    --signal:    #8A6D13;
-    --critical:  #9B3D28;
-    --sans: 'Archivo', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
-    --mono: 'Azeret Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  }
+  <style>
+    :root {
+      --bg:        #EDEEEA;
+      --surface:   #FFFFFF;
+      --surface-2: #E2E4DF;
+      --ink:       #161918;
+      --ink-2:     #4E5451;
+      --ink-3:     #7B817D;
+      --rule:      #CBCFC9;
+      --rule-soft: #DDE0DB;
+      --signal:    #8A6D13;
+      --critical:  #9B3D28;
+      --sans: 'Archivo', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      --mono: 'Azeret Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
 
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg:        #0F1211;
+        --surface:   #171B1A;
+        --surface-2: #1F2523;
+        --ink:       #E8E9E5;
+        --ink-2:     #9BA19D;
+        --ink-3:     #6C736F;
+        --rule:      #2B312F;
+        --rule-soft: #232826;
+        --signal:    #C9A227;
+        --critical:  #C0563F;
+      }
+    }
+
+    :root[data-theme="dark"] {
       --bg:        #0F1211;
       --surface:   #171B1A;
       --surface-2: #1F2523;
@@ -50,242 +64,229 @@
       --signal:    #C9A227;
       --critical:  #C0563F;
     }
-  }
 
-  :root[data-theme="dark"] {
-    --bg:        #0F1211;
-    --surface:   #171B1A;
-    --surface-2: #1F2523;
-    --ink:       #E8E9E5;
-    --ink-2:     #9BA19D;
-    --ink-3:     #6C736F;
-    --rule:      #2B312F;
-    --rule-soft: #232826;
-    --signal:    #C9A227;
-    --critical:  #C0563F;
-  }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.62;
+      -webkit-font-smoothing: antialiased;
+    }
 
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: var(--sans);
-    font-size: 16px;
-    line-height: 1.62;
-    -webkit-font-smoothing: antialiased;
-  }
+    .sheet { max-width: 1096px; margin: 0 auto; padding: 0 28px 88px; }
 
-  .sheet { max-width: 1096px; margin: 0 auto; padding: 0 28px 88px; }
+    /* ---------- masthead ---------- */
+    .masthead { padding: 68px 0 0; }
+    .name {
+      font-size: clamp(36px, 5.6vw, 56px);
+      font-weight: 700;
+      letter-spacing: -.03em;
+      line-height: 1.02;
+      margin: 0 0 10px;
+    }
+    .role {
+      font-size: clamp(17px, 2.1vw, 21px);
+      font-weight: 500;
+      color: var(--ink);
+      margin: 0 0 18px;
+    }
+    .contact {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--ink-2);
+      margin: 0 0 26px;
+      line-height: 1.7;
+    }
+    .oneline {
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: .04em;
+      color: var(--signal);
+      margin: 18px 0 0;
+      line-height: 1.7;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 30px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink-3);
+      padding: 15px 0;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--rule);
+    }
+    .meta b { color: var(--ink-2); font-weight: 500; }
 
-  /* ---------- masthead ---------- */
-  .masthead { padding: 68px 0 0; }
-  .name {
-    font-size: clamp(36px, 5.6vw, 56px);
-    font-weight: 700;
-    letter-spacing: -.03em;
-    line-height: 1.02;
-    margin: 0 0 10px;
-  }
-  .role {
-    font-size: clamp(17px, 2.1vw, 21px);
-    font-weight: 500;
-    color: var(--ink);
-    margin: 0 0 18px;
-  }
-  .contact {
-    font-family: var(--mono);
-    font-size: 12.5px;
-    color: var(--ink-2);
-    margin: 0 0 26px;
-    line-height: 1.7;
-  }
-  .oneline {
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: .04em;
-    color: var(--signal);
-    margin: 18px 0 0;
-    line-height: 1.7;
-  }
-  .meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 30px;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--ink-3);
-    padding: 15px 0;
-    border-top: 1px solid var(--ink);
-    border-bottom: 1px solid var(--rule);
-  }
-  .meta b { color: var(--ink-2); font-weight: 500; }
+    /* ---------- record ---------- */
+    .record { padding-top: 76px; }
+    .domain {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .2em;
+      color: var(--signal);
+      margin: 0 0 11px;
+    }
+    h2 {
+      font-size: clamp(25px, 3.3vw, 34px);
+      font-weight: 700;
+      letter-spacing: -.022em;
+      line-height: 1.14;
+      margin: 0 0 12px;
+      text-wrap: balance;
+    }
+    .stack {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink-3);
+      margin: 0 0 30px;
+    }
 
-  /* ---------- record ---------- */
-  .record { padding-top: 76px; }
-  .domain {
-    font-family: var(--mono);
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: .2em;
-    color: var(--signal);
-    margin: 0 0 11px;
-  }
-  h2 {
-    font-size: clamp(25px, 3.3vw, 34px);
-    font-weight: 700;
-    letter-spacing: -.022em;
-    line-height: 1.14;
-    margin: 0 0 12px;
-    text-wrap: balance;
-  }
-  .stack {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--ink-3);
-    margin: 0 0 30px;
-  }
+    /* ---------- brief (problem / design / verification) ---------- */
+    .brief { margin: 0; display: grid; gap: 0; }
+    .brief > div {
+      display: grid;
+      grid-template-columns: 108px 1fr;
+      gap: 22px;
+      padding: 15px 0;
+      border-top: 1px solid var(--rule-soft);
+    }
+    .brief > div:last-child { border-bottom: 1px solid var(--rule-soft); }
+    .brief dt {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      padding-top: 4px;
+    }
+    .brief dd { margin: 0; font-size: 15.5px; color: var(--ink-2); text-wrap: pretty; }
+    .brief dd b { color: var(--ink); font-weight: 600; }
 
-  /* ---------- brief (problem / design / verification) ---------- */
-  .brief { margin: 0; display: grid; gap: 0; }
-  .brief > div {
-    display: grid;
-    grid-template-columns: 108px 1fr;
-    gap: 22px;
-    padding: 15px 0;
-    border-top: 1px solid var(--rule-soft);
-  }
-  .brief > div:last-child { border-bottom: 1px solid var(--rule-soft); }
-  .brief dt {
-    font-family: var(--mono);
-    font-size: 10.5px;
-    font-weight: 500;
-    letter-spacing: .14em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-    padding-top: 4px;
-  }
-  .brief dd { margin: 0; font-size: 15.5px; color: var(--ink-2); text-wrap: pretty; }
-  .brief dd b { color: var(--ink); font-weight: 600; }
+    .callout {
+      margin: 28px 0 0;
+      padding: 18px 0 18px 20px;
+      border-left: 3px solid var(--signal);
+      font-size: clamp(17px, 2.1vw, 21px);
+      font-weight: 600;
+      letter-spacing: -.012em;
+      text-wrap: balance;
+      line-height: 1.35;
+    }
 
-  .callout {
-    margin: 28px 0 0;
-    padding: 18px 0 18px 20px;
-    border-left: 3px solid var(--signal);
-    font-size: clamp(17px, 2.1vw, 21px);
-    font-weight: 600;
-    letter-spacing: -.012em;
-    text-wrap: balance;
-    line-height: 1.35;
-  }
+    /* ---------- result strip ---------- */
+    .results {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--ink);
+      background: var(--surface);
+      margin: 30px 0 0;
+    }
+    .results > div { padding: 20px 22px 18px; border-right: 1px solid var(--rule); }
+    .results > div:last-child { border-right: 0; }
+    .results .val {
+      display: block;
+      font-family: var(--mono);
+      font-size: clamp(22px, 2.6vw, 28px);
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -.04em;
+      color: var(--signal);
+      line-height: 1.05;
+      margin-bottom: 8px;
+    }
+    .results .cap { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.4; }
 
-  /* ---------- result strip ---------- */
-  .results {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    border: 1px solid var(--ink);
-    background: var(--surface);
-    margin: 30px 0 0;
-  }
-  .results > div { padding: 20px 22px 18px; border-right: 1px solid var(--rule); }
-  .results > div:last-child { border-right: 0; }
-  .results .val {
-    display: block;
-    font-family: var(--mono);
-    font-size: clamp(22px, 2.6vw, 28px);
-    font-weight: 500;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -.04em;
-    color: var(--signal);
-    line-height: 1.05;
-    margin-bottom: 8px;
-  }
-  .results .cap { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.4; }
+    /* ---------- figures ---------- */
+    figure { margin: 32px 0 0; }
+    .plate {
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      padding: 24px;
+      overflow-x: auto;
+    }
+    .plate svg { display: block; max-width: 100%; height: auto; min-width: 700px; }
+    figcaption {
+      margin-top: 13px;
+      font-size: 13.5px;
+      color: var(--ink-2);
+      max-width: 104ch;
+      text-wrap: pretty;
+    }
+    figcaption b { color: var(--ink); font-weight: 600; }
+    .fig-label {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin: 34px 0 12px;
+    }
 
-  /* ---------- figures ---------- */
-  figure { margin: 32px 0 0; }
-  .plate {
-    background: var(--surface);
-    border: 1px solid var(--rule);
-    padding: 24px;
-    overflow-x: auto;
-  }
-  .plate svg { display: block; max-width: 100%; height: auto; min-width: 700px; }
-  figcaption {
-    margin-top: 13px;
-    font-size: 13.5px;
-    color: var(--ink-2);
-    max-width: 104ch;
-    text-wrap: pretty;
-  }
-  figcaption b { color: var(--ink); font-weight: 600; }
-  .fig-label {
-    font-family: var(--mono);
-    font-size: 10.5px;
-    font-weight: 500;
-    letter-spacing: .16em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-    margin: 34px 0 12px;
-  }
+    /* ---------- svg tokens ---------- */
+    .box  { fill: var(--surface-2); stroke: var(--rule); stroke-width: 1; }
+    .boxs { fill: var(--surface-2); stroke: var(--signal); stroke-width: 1.6; }
+    .region { fill: none; stroke: var(--ink-3); stroke-width: 1.2; stroke-dasharray: 7 5; }
+    .bar  { fill: var(--surface-2); stroke: var(--ink-3); stroke-width: 1; }
+    .chip { fill: var(--surface); stroke: var(--signal); stroke-width: 1; }
+    .l-n  { stroke: var(--ink-3);    stroke-width: 1.3; fill: none; }
+    .l-s  { stroke: var(--signal);   stroke-width: 1.6; fill: none; }
+    .l-c  { stroke: var(--critical); stroke-width: 1.4; fill: none; stroke-dasharray: 5 4; }
+    .thick { stroke-width: 2.8; }
+    .mk-n { fill: var(--ink-3); }
+    .mk-s { fill: var(--signal); }
+    .divider { stroke: var(--rule); stroke-width: 1; }
 
-  /* ---------- svg tokens ---------- */
-  .box  { fill: var(--surface-2); stroke: var(--rule); stroke-width: 1; }
-  .boxs { fill: var(--surface-2); stroke: var(--signal); stroke-width: 1.6; }
-  .region { fill: none; stroke: var(--ink-3); stroke-width: 1.2; stroke-dasharray: 7 5; }
-  .bar  { fill: var(--surface-2); stroke: var(--ink-3); stroke-width: 1; }
-  .chip { fill: var(--surface); stroke: var(--signal); stroke-width: 1; }
-  .l-n  { stroke: var(--ink-3);    stroke-width: 1.3; fill: none; }
-  .l-s  { stroke: var(--signal);   stroke-width: 1.6; fill: none; }
-  .l-c  { stroke: var(--critical); stroke-width: 1.4; fill: none; stroke-dasharray: 5 4; }
-  .thick { stroke-width: 2.8; }
-  .mk-n { fill: var(--ink-3); }
-  .mk-s { fill: var(--signal); }
-  .divider { stroke: var(--rule); stroke-width: 1; }
+    .t-eye  { fill: var(--ink-3);   font-family: var(--mono); font-size: 10px; letter-spacing: .18em; }
+    .t-reg  { fill: var(--ink-3);   font-family: var(--mono); font-size: 10px; letter-spacing: .14em; }
+    .t-ttl  { fill: var(--ink);     font-family: var(--sans); font-size: 15px; font-weight: 700; }
+    .t-name { fill: var(--ink);     font-family: var(--sans); font-size: 13px; font-weight: 600; }
+    .t-row  { fill: var(--ink-2);   font-family: var(--mono); font-size: 10.5px; }
+    .t-sub  { fill: var(--ink-3);   font-family: var(--mono); font-size: 9.5px; }
+    .t-arw  { fill: var(--ink-3);   font-family: var(--mono); font-size: 9.5px; }
+    .t-sig  { fill: var(--signal);  font-family: var(--mono); font-size: 10.5px; font-weight: 500; }
+    .t-sigb { fill: var(--signal);  font-family: var(--sans); font-size: 13px; font-weight: 600; }
+    .t-crit { fill: var(--critical);font-family: var(--mono); font-size: 10.5px; font-weight: 500; }
+    .dim    { opacity: .4; }
 
-  .t-eye  { fill: var(--ink-3);   font-family: var(--mono); font-size: 10px; letter-spacing: .18em; }
-  .t-reg  { fill: var(--ink-3);   font-family: var(--mono); font-size: 10px; letter-spacing: .14em; }
-  .t-ttl  { fill: var(--ink);     font-family: var(--sans); font-size: 15px; font-weight: 700; }
-  .t-name { fill: var(--ink);     font-family: var(--sans); font-size: 13px; font-weight: 600; }
-  .t-row  { fill: var(--ink-2);   font-family: var(--mono); font-size: 10.5px; }
-  .t-sub  { fill: var(--ink-3);   font-family: var(--mono); font-size: 9.5px; }
-  .t-arw  { fill: var(--ink-3);   font-family: var(--mono); font-size: 9.5px; }
-  .t-sig  { fill: var(--signal);  font-family: var(--mono); font-size: 10.5px; font-weight: 500; }
-  .t-sigb { fill: var(--signal);  font-family: var(--sans); font-size: 13px; font-weight: 600; }
-  .t-crit { fill: var(--critical);font-family: var(--mono); font-size: 10.5px; font-weight: 500; }
-  .dim    { opacity: .4; }
-
-  /* ---------- also shipped ---------- */
-  .also {
-    margin: 34px 0 0;
-    border: 1px solid var(--rule);
-    background: var(--surface);
-    padding: 22px 24px;
-    max-width: 88ch;
-  }
-  .also h3 {
-    font-family: var(--mono);
-    font-size: 10.5px;
-    font-weight: 500;
-    letter-spacing: .16em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-    margin: 0 0 12px;
-  }
-  .also p { margin: 0; font-size: 14.5px; color: var(--ink-2); }
-  .also b { color: var(--ink); font-weight: 600; }
+    /* ---------- also shipped ---------- */
+    .also {
+      margin: 34px 0 0;
+      border: 1px solid var(--rule);
+      background: var(--surface);
+      padding: 22px 24px;
+      max-width: 88ch;
+    }
+    .also h3 {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin: 0 0 12px;
+    }
+    .also p { margin: 0; font-size: 14.5px; color: var(--ink-2); }
+    .also b { color: var(--ink); font-weight: 600; }
 
 
-  a { color: var(--signal); text-underline-offset: 3px; }
-  :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
+    a { color: var(--signal); text-underline-offset: 3px; }
+    .contact a { color: inherit; }
+    :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
 
-  @media (max-width: 780px) {
-    .sheet { padding: 0 18px 68px; }
-    .masthead { padding-top: 46px; }
-    .results { grid-template-columns: 1fr; }
-    .results > div { border-right: 0; border-bottom: 1px solid var(--rule); }
-    .results > div:last-child { border-bottom: 0; }
-    .brief > div { grid-template-columns: 1fr; gap: 6px; }
-  }
-</style>
+    @media (max-width: 780px) {
+      .sheet { padding: 0 18px 68px; }
+      .masthead { padding-top: 46px; }
+      .results { grid-template-columns: 1fr; }
+      .results > div { border-right: 0; border-bottom: 1px solid var(--rule); }
+      .results > div:last-child { border-bottom: 0; }
+      .brief > div { grid-template-columns: 1fr; gap: 6px; }
+    }
+  </style>
 </head>
 <body>
 <div class="sheet">
@@ -293,7 +294,7 @@
   <header class="masthead">
     <h1 class="name">Heeguk Son</h1>
     <p class="role">Backend Software Engineer</p>
-    <p class="contact">heeguk.son@wisc.edu · linkedin.com/in/heeguk-son · M.S. Computer Sciences, UW-Madison</p>
+    <p class="contact"><a href="mailto:heeguk.son@wisc.edu">heeguk.son@wisc.edu</a> · <a href="https://www.linkedin.com/in/heeguk-son/" target="_blank" rel="noopener noreferrer">linkedin.com/in/heeguk-son</a> · M.S. Computer Sciences, UW-Madison</p>
     <div class="meta">
       <span><b>NAVER Corporation</b> · Backend Software Engineer</span>
       <span>Jan 2022 to Jul 2026</span>
@@ -312,31 +313,29 @@
       <div>
         <dt>Problem</dt>
         <dd>A single cluster in one region served all traffic, with only Redis running in a dual
-            configuration. There was <b>no second cluster to fail over to</b>, and a region-level failure
-            took everything.</dd>
+          configuration. There was <b>no second cluster to fail over to</b>, and a region-level failure
+          took everything.</dd>
       </div>
       <div>
         <dt>Constraint</dt>
         <dd>The migration had to run <b>with no service downtime</b>, across four layers that fail over on
-            different terms. Application servers are stateless and can be shifted; Redis, Kafka and
-            Elasticsearch each replicate and recover on their own semantics, so there was never a single
-            fact called "the cluster failed over" to verify.</dd>
+          different terms. Application servers are stateless and can be shifted; Redis, Kafka and
+          Elasticsearch each replicate and recover on their own semantics, so there was never a single
+          fact called "the cluster failed over" to verify.</dd>
       </div>
       <div>
         <dt>Design</dt>
         <dd>The application went from one cluster to two across two regions, then to three. The
-            <b>infrastructure skipped that middle step and went straight from one cluster to three</b>.
-            The target was for <b>a single surviving cluster to sustain serving capacity</b> while the
-            stateful systems continued to maintain correct replication behavior.</dd>
+          <b>infrastructure skipped that middle step and went straight from one cluster to three</b>.
+          The target was for <b>a single surviving cluster to sustain serving capacity</b> while the
+          stateful systems continued to maintain correct replication behavior.</dd>
       </div>
       <div>
         <dt>Validation</dt>
         <dd>A failure drill removed two of the three clusters at once under production-scale load,
-            measuring throughput on the survivor and replication lag on every stateful layer.</dd>
+          measuring throughput on the survivor and replication lag on every stateful layer.</dd>
       </div>
     </dl>
-
-    <p class="callout">Four layers, four different failover semantics, and no downtime window.</p>
 
     <div class="results">
       <div>
@@ -482,44 +481,41 @@
   <article class="record">
     <p class="domain">DISTRIBUTED SYSTEMS</p>
     <h2>Event-Driven Architecture With Real-Time and Resync Processing</h2>
-    <p class="stack">Kafka · CQRS read model projection · rate-controlled backfill</p>
+    <p class="stack">Kafka · eventually consistent read model · rate-controlled backfill</p>
 
     <dl class="brief">
       <div>
         <dt>Context</dt>
         <dd>Product and member data lived in source-of-truth databases owned by upstream teams. Serving
-            every API request from them loaded systems we did not own, so we consumed change events from
-            Kafka and served reads from our own replica. A <b>CQRS read model projection</b>, with the
-            ownership boundary at the event stream.</dd>
+          every API request from them loaded systems we did not own, so we consumed change events from
+          Kafka and projected them into an <b>eventually consistent read model owned by our service</b>
+          for API serving.</dd>
       </div>
       <div>
         <dt>Problem</dt>
         <dd>Steady state was hundreds to a few thousand events per second. A schema or policy change meant
-            recomputing existing products, which could produce <b>billions of resync events</b>. That
-            created two separate problems: a backlog large enough to leave live edits waiting behind it for
-            hours, and resync events that the normal update rules would silently reject.</dd>
+          recomputing existing products, which could produce <b>billions of resync events</b>. That
+          created two separate problems: a backlog large enough to leave live edits waiting behind it for
+          hours, and resync events that the normal update rules would silently reject.</dd>
       </div>
       <div>
         <dt>Design</dt>
         <dd>Same topic, same consumer group, with <b>two independent mechanisms</b>. The resync publisher
-            was rate-controlled so large backfills entered Kafka gradually rather than as a burst, which
-            protected live-event latency. Inside the consumer, an event type field routed real-time and
-            resync events through separate processing paths, because the two carried different update
-            semantics. This was the design I proposed.</dd>
+          was rate-controlled so large backfills entered Kafka gradually rather than as a burst, which
+          protected live-event latency. Inside the consumer, an event type field routed real-time and
+          resync events through separate processing paths, because the two carried different update
+          semantics. This was the design I proposed.</dd>
       </div>
       <div>
         <dt>Update semantics</dt>
         <dd>Each product carries a modification timestamp marking a real product or user change, and
-            real-time processing uses it to reject stale events: arriving as 1, then 3, then 2, the event
-            carrying 2 is discarded rather than overwriting the state from 3. <b>A resync is not a user
+          real-time processing uses it to reject stale events: arriving as 1, then 3, then 2, the event
+          carrying 2 is discarded rather than overwriting the state from 3. <b>A resync is not a user
             modification</b>, so the product's timestamp intentionally does not advance, and that same rule
-            would throw a valid resync away. Stamping resyncs with a fresh timestamp would have removed the
-            need for a second path, and would have recorded a modification that never happened.</dd>
+          would throw a valid resync away. Stamping resyncs with a fresh timestamp would have removed the
+          need for a second path, and would have recorded a modification that never happened.</dd>
       </div>
     </dl>
-
-    <p class="callout">Eventual consistency was a domain judgment. The same structure would be wrong for
-      inventory decrement or account balances.</p>
 
     <div class="results">
       <div>
@@ -563,7 +559,7 @@
           <text class="t-arw" x="300" y="112">create · update · delete</text>
 
           <line class="l-s" x1="730" y1="92" x2="730" y2="122" marker-end="url(#bs)"/>
-          <text class="t-sig" x="740" y="112">paced, never bursted</text>
+          <text class="t-sig" x="740" y="112">published gradually</text>
 
           <!-- shared topic -->
           <rect class="box" x="268" y="126" width="484" height="64" rx="2"/>
@@ -613,7 +609,7 @@
         </svg>
       </div>
       <figcaption>
-        <b>Two mechanisms, two different problems.</b> Publisher-side pacing kept a billion-event backfill
+        <b>Two mechanisms, two different problems.</b> Publisher-side pacing kept billion-scale backfills
         from burying live edits in the topic. Consumer-side routing handled something else entirely:
         real-time events follow the normal timestamp staleness rule, while a schema driven resync
         deliberately leaves the product timestamp unchanged and would be discarded by that same rule. Both
@@ -631,26 +627,26 @@
     <dl class="brief">
       <div>
         <dt>Problem</dt>
-        <dd>Ten or more services logged in different shapes into one operational inbox. The recurring cost
-            was <b>re-deciding every day that a recurring error or warning is still benign</b>, and
-            occasionally missing the one that was not.</dd>
+        <dd>Logs from 10+ services arrived in different formats, making daily triage repetitive and
+          inconsistent. The recurring cost was <b>re-deciding every day that a known error or warning was
+            still benign</b>, while trying not to miss the one that actually mattered.</dd>
       </div>
       <div>
         <dt>Design</dt>
         <dd>A scheduled job runs <b>once a day on a CI runner</b>. A coding agent pulls the day's logs
-            from every service into a common format, then <b>evaluates each error and warning against a
+          from every service into a common format, then <b>evaluates each error and warning against a
             knowledge base of prior team judgments</b> that lives in version control beside the code.</dd>
       </div>
       <div>
         <dt>Output</dt>
         <dd>Routine findings roll into a daily report for service owners. Critical errors open a Jira
-            ticket and alert the owner directly.</dd>
+          ticket and alert the owner directly.</dd>
       </div>
       <div>
         <dt>Feedback loop</dt>
         <dd>Operator corrections land as <b>pull requests against the knowledge base</b>, so a misjudgment
-            is corrected once instead of re-explained, and every change to the triage rules is reviewed
-            like code.</dd>
+          is corrected once instead of re-explained, and every change to the triage rules is reviewed
+          like code.</dd>
       </div>
     </dl>
 
