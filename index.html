@@ -672,10 +672,9 @@
       </div>
       <div>
         <dt>Design</dt>
-        <dd>A scheduled job runs <b>once a day on a CI runner</b>. A coding agent collects the day's logs
-            across the services, normalizes them into one shape, and classifies each finding against a
-            knowledge base of the team's accumulated judgments that lives in version control beside the
-            code.</dd>
+        <dd>A scheduled job runs <b>once a day on a CI runner</b>. A coding agent pulls the day's logs
+            from every service into a common format, then <b>evaluates each error against a knowledge base
+            of prior team judgments</b> that lives in version control beside the code.</dd>
       </div>
       <div>
         <dt>Output</dt>
@@ -693,7 +692,7 @@
     <div class="results">
       <div>
         <span class="val">10+</span>
-        <span class="cap">services collected and normalized into one triage shape</span>
+        <span class="cap">services pulled into one common log format</span>
       </div>
       <div>
         <span class="val">Daily</span>
@@ -709,7 +708,7 @@
     <figure>
       <div class="plate">
         <svg viewBox="0 0 1020 404" role="img"
-             aria-label="A daily schedule on a CI runner triggers an agent run that collects logs from more than ten services, normalizes and classifies them against a knowledge base kept in version control, then emits a daily report and auto-filed Jira tickets. Operator review returns corrections to the knowledge base as pull requests.">
+             aria-label="A daily schedule on a CI runner triggers an agent run that pulls logs from more than ten services into one common format and evaluates each error against a knowledge base of prior team judgments kept in version control, then emits a daily report and auto-filed Jira tickets. Operator review returns corrections to the knowledge base as pull requests.">
           <defs>
             <marker id="cn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M0,0 L10,5 L0,10 z" class="mk-n"/>
@@ -725,7 +724,7 @@
 
           <rect class="box" x="24" y="150" width="200" height="74" rx="2"/>
           <text class="t-name" x="40" y="178">10+ services</text>
-          <text class="t-sub"  x="40" y="200">heterogeneous log formats</text>
+          <text class="t-sub"  x="40" y="200">each with its own log format</text>
 
           <path class="l-s" d="M 124 92 L 124 138 L 272 138" marker-end="url(#cs)"/>
           <text class="t-sig" x="134" y="128">triggers</text>
@@ -735,17 +734,17 @@
 
           <rect class="box" x="276" y="110" width="250" height="130" rx="2"/>
           <text class="t-name" x="294" y="140">Agent run</text>
-          <text class="t-sub"  x="294" y="164">collect and normalize</text>
-          <text class="t-sub"  x="294" y="184">classify each finding</text>
+          <text class="t-sub"  x="294" y="164">pull into one format</text>
+          <text class="t-sub"  x="294" y="184">evaluate each error</text>
           <text class="t-sig"  x="294" y="214">coding agent on the runner</text>
 
           <rect class="box" x="276" y="280" width="250" height="74" rx="2"/>
           <text class="t-name" x="294" y="308">Knowledge base</text>
-          <text class="t-sub"  x="294" y="330">team judgments</text>
+          <text class="t-sub"  x="294" y="330">prior team judgments</text>
           <text class="t-sub"  x="294" y="346">kept in version control</text>
 
           <line class="l-n" x1="330" y1="276" x2="330" y2="244" marker-end="url(#cn)"/>
-          <text class="t-arw" x="340" y="264">known judgments</text>
+          <text class="t-arw" x="340" y="264">prior judgments</text>
 
           <line class="l-n" x1="528" y1="139" x2="574" y2="139" marker-end="url(#cn)"/>
           <line class="l-s" x1="528" y1="211" x2="574" y2="211" marker-end="url(#cs)"/>
@@ -770,7 +769,7 @@
         </svg>
       </div>
       <figcaption>
-        The classifier is not a running service. It is a <b>scheduled job</b>: one agent run per day on a CI
+        The triage step is not a running service. It is a <b>scheduled job</b>: one agent run per day on a CI
         runner, reading a knowledge base that lives in the repository. That placement is what makes the
         loop durable, because a correction arrives as a reviewed pull request rather than as an untracked
         configuration change.
