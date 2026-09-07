@@ -185,20 +185,20 @@
     background: var(--surface);
     margin: 30px 0 0;
   }
-  .results > div { padding: 24px 24px 22px; border-right: 1px solid var(--rule); }
+  .results > div { padding: 20px 22px 18px; border-right: 1px solid var(--rule); }
   .results > div:last-child { border-right: 0; }
   .results .val {
     display: block;
     font-family: var(--mono);
-    font-size: clamp(26px, 3.6vw, 36px);
+    font-size: clamp(22px, 2.6vw, 28px);
     font-weight: 500;
     font-variant-numeric: tabular-nums;
     letter-spacing: -.04em;
     color: var(--signal);
     line-height: 1.05;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
-  .results .cap { display: block; font-size: 12.5px; color: var(--ink-2); line-height: 1.42; }
+  .results .cap { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.4; }
 
   /* ---------- figures ---------- */
   figure { margin: 32px 0 0; }
@@ -330,7 +330,7 @@
             stateful systems continued to maintain correct replication behavior.</dd>
       </div>
       <div>
-        <dt>Verification</dt>
+        <dt>Validation</dt>
         <dd>A failure drill removed two of the three clusters at once under production-scale load,
             measuring throughput on the survivor and replication lag on every stateful layer.</dd>
       </div>
@@ -341,15 +341,15 @@
     <div class="results">
       <div>
         <span class="val">100K+</span>
-        <span class="cap">API RPS sustained by the surviving cluster</span>
+        <span class="cap">API RPS on the surviving cluster</span>
       </div>
       <div>
         <span class="val">2 of 3</span>
-        <span class="cap">clusters removed simultaneously in the drill</span>
+        <span class="cap">clusters removed in the drill</span>
       </div>
       <div>
         <span class="val">4</span>
-        <span class="cap">layers migrated: application, Redis, Kafka, Elasticsearch</span>
+        <span class="cap">layers migrated across clusters</span>
       </div>
     </div>
 
@@ -508,7 +508,7 @@
             proposed.</dd>
       </div>
       <div>
-        <dt>Ordering</dt>
+        <dt>Consistency</dt>
         <dd>A resync batch is a snapshot taken at one point in time, so a stale resync event must not
             overwrite a newer edit. The <b>snapshot publish time is the boundary</b>: real-time events
             after it always win. The comparison is against that batch boundary rather than a per-event
@@ -522,15 +522,15 @@
     <div class="results">
       <div>
         <span class="val">10K/s</span>
-        <span class="cap">combined events per second sustained during backfills</span>
+        <span class="cap">combined throughput during backfills</span>
       </div>
       <div>
         <span class="val">Billions</span>
-        <span class="cap">of product events replayed in a single resync</span>
+        <span class="cap">product events replayed per resync</span>
       </div>
       <div>
         <span class="val">No increase</span>
-        <span class="cap">in real-time processing lag, monitored throughout the backfill runs</span>
+        <span class="cap">in real-time processing lag</span>
       </div>
     </div>
 
@@ -658,27 +658,12 @@
             ticket and alert the owner directly.</dd>
       </div>
       <div>
-        <dt>Closing the loop</dt>
+        <dt>Feedback loop</dt>
         <dd>Operator corrections land as <b>pull requests against the knowledge base</b>, so a misjudgment
             is corrected once instead of re-explained, and every change to the triage rules is reviewed
             like code.</dd>
       </div>
     </dl>
-
-    <div class="results">
-      <div>
-        <span class="val">10+</span>
-        <span class="cap">services pulled into one common log format</span>
-      </div>
-      <div>
-        <span class="val">Daily</span>
-        <span class="cap">scheduled run on a CI runner, with no human trigger</span>
-      </div>
-      <div>
-        <span class="val">Auto-filed</span>
-        <span class="cap">Jira tickets and owner alerts on critical errors</span>
-      </div>
-    </div>
 
     <p class="fig-label">Daily run</p>
     <figure>
