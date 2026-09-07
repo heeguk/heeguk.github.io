@@ -325,9 +325,9 @@
       <div>
         <dt>Design</dt>
         <dd>The application went from one cluster to two across two regions, then to three. The
-            <b>infrastructure moved to three in a single step</b> rather than incrementally. The target was
-            for <b>a single surviving cluster to sustain serving capacity</b> while the stateful systems
-            continued to maintain correct replication behavior.</dd>
+            <b>infrastructure skipped that middle step and went straight from one cluster to three</b>.
+            The target was for <b>a single surviving cluster to sustain serving capacity</b> while the
+            stateful systems continued to maintain correct replication behavior.</dd>
       </div>
       <div>
         <dt>Verification</dt>
@@ -349,7 +349,7 @@
       </div>
       <div>
         <span class="val">4</span>
-        <span class="cap">layers migrated together, application and infrastructure</span>
+        <span class="cap">layers migrated: application, Redis, Kafka, Elasticsearch</span>
       </div>
     </div>
 
