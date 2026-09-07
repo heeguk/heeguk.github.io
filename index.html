@@ -7,7 +7,7 @@
 <meta name="author" content="Heeguk Son">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Heeguk Son, Infrastructure &amp; Backend Software Engineer">
-<meta property="og:description" content="Zero-downtime multi-region failover across four stateful layers, a CQRS read model pipeline sustaining 10K events/sec during billion-event backfills, and automated production triage.">
+<meta property="og:description" content="Zero-downtime multi-region failover across four stateful layers, a CQRS read model pipeline sustaining 10K events/sec during billion-event backfills, and automated production log triage.">
 <meta name="twitter:card" content="summary_large_image">
 <style>
   *, *::before, *::after { box-sizing: border-box; }
@@ -667,14 +667,14 @@
       <div>
         <dt>Problem</dt>
         <dd>Ten or more services logged in different shapes into one operational inbox. The recurring cost
-            was <b>re-deciding every day that a familiar error is still benign</b>, and occasionally missing
-            the one that was not.</dd>
+            was <b>re-deciding every day that a recurring error or warning is still benign</b>, and
+            occasionally missing the one that was not.</dd>
       </div>
       <div>
         <dt>Design</dt>
         <dd>A scheduled job runs <b>once a day on a CI runner</b>. A coding agent pulls the day's logs
-            from every service into a common format, then <b>evaluates each error against a knowledge base
-            of prior team judgments</b> that lives in version control beside the code.</dd>
+            from every service into a common format, then <b>evaluates each error and warning against a
+            knowledge base of prior team judgments</b> that lives in version control beside the code.</dd>
       </div>
       <div>
         <dt>Output</dt>
@@ -708,7 +708,7 @@
     <figure>
       <div class="plate">
         <svg viewBox="0 0 1020 404" role="img"
-             aria-label="A daily schedule on a CI runner triggers an agent run that pulls logs from more than ten services into one common format and evaluates each error against a knowledge base of prior team judgments kept in version control, then emits a daily report and auto-filed Jira tickets. Operator review returns corrections to the knowledge base as pull requests.">
+             aria-label="A daily schedule on a CI runner triggers an agent run that pulls logs from more than ten services into one common format and evaluates each error and warning against a knowledge base of prior team judgments kept in version control, then emits a daily report and auto-filed Jira tickets. Operator review returns corrections to the knowledge base as pull requests.">
           <defs>
             <marker id="cn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M0,0 L10,5 L0,10 z" class="mk-n"/>
@@ -735,7 +735,7 @@
           <rect class="box" x="276" y="110" width="250" height="130" rx="2"/>
           <text class="t-name" x="294" y="140">Agent run</text>
           <text class="t-sub"  x="294" y="164">pull into one format</text>
-          <text class="t-sub"  x="294" y="184">evaluate each error</text>
+          <text class="t-sub"  x="294" y="184">evaluate errors and warnings</text>
           <text class="t-sig"  x="294" y="214">coding agent on the runner</text>
 
           <rect class="box" x="276" y="280" width="250" height="74" rx="2"/>
