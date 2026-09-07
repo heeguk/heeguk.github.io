@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Backend engineering case studies: a staged migration to multi-region failover, a Kafka architecture with real-time and resync processing, and a scheduled agent that triages production logs daily.">
+<meta name="description" content="Backend engineering case studies: high availability, distributed systems, and operational automation.">
 <meta name="author" content="Heeguk Son">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Heeguk Son, Backend Software Engineer">
-<meta property="og:description" content="100K+ API RPS through cluster loss, billion-event backfills, and automated production log triage.">
+<meta property="og:description" content="High availability, distributed systems, and operational automation. Case studies from four years on a large-scale commerce backend.">
 <meta name="twitter:card" content="summary_large_image">
 <style>
   *, *::before, *::after { box-sizing: border-box; }
@@ -91,18 +91,19 @@
     color: var(--ink);
     margin: 0 0 18px;
   }
-  .oneline {
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--signal);
-    margin: 0 0 12px;
-    line-height: 1.7;
-  }
   .contact {
     font-family: var(--mono);
     font-size: 12.5px;
     color: var(--ink-2);
-    margin: 0 0 28px;
+    margin: 0 0 26px;
+    line-height: 1.7;
+  }
+  .oneline {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: .04em;
+    color: var(--signal);
+    margin: 18px 0 0;
     line-height: 1.7;
   }
   .meta {
@@ -117,13 +118,6 @@
     border-bottom: 1px solid var(--rule);
   }
   .meta b { color: var(--ink-2); font-weight: 500; }
-  .confidential {
-    font-size: 11.5px;
-    font-family: var(--mono);
-    color: var(--ink-3);
-    margin: 12px 0 0;
-    line-height: 1.6;
-  }
 
   /* ---------- record ---------- */
   .record { padding-top: 76px; }
@@ -299,16 +293,13 @@
   <header class="masthead">
     <h1 class="name">Heeguk Son</h1>
     <p class="role">Backend Software Engineer</p>
-    <p class="oneline">100K+ API RPS through cluster loss · billion-event backfills · automated production triage</p>
     <p class="contact">heeguk.son@wisc.edu · linkedin.com/in/heeguk-son · M.S. Computer Sciences, UW-Madison</p>
     <div class="meta">
       <span><b>NAVER Corporation</b> · Backend Software Engineer</span>
       <span>Jan 2022 to Jul 2026</span>
       <span>Java · Spring Boot · Kafka · Redis · Elasticsearch</span>
     </div>
-    <p class="confidential">
-      Architecture diagrams are sanitized; proprietary names, configuration, and data are omitted.
-    </p>
+    <p class="oneline">High availability · Distributed systems · Operational automation</p>
   </header>
 
   <!-- ===================== 1. HIGH AVAILABILITY ===================== -->
@@ -658,7 +649,7 @@
 
   <!-- ===================== 3. OPERABILITY ===================== -->
   <article class="record">
-    <p class="domain">OPERABILITY &amp; AUTOMATION</p>
+    <p class="domain">OPERATIONAL AUTOMATION</p>
     <h2>Automated Production Log Triage Across 10+ Services</h2>
     <p class="stack">Scheduled CI job · coding agent · knowledge base in version control · Jira automation</p>
 
