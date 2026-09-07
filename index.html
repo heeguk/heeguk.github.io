@@ -144,7 +144,7 @@
   }
 
   /* ---------- brief (problem / design / verification) ---------- */
-  .brief { margin: 0; display: grid; gap: 0; max-width: 100ch; }
+  .brief { margin: 0; display: grid; gap: 0; }
   .brief > div {
     display: grid;
     grid-template-columns: 108px 1fr;
@@ -162,7 +162,7 @@
     color: var(--ink-3);
     padding-top: 4px;
   }
-  .brief dd { margin: 0; font-size: 15.5px; color: var(--ink-2); }
+  .brief dd { margin: 0; font-size: 15.5px; color: var(--ink-2); text-wrap: pretty; }
   .brief dd b { color: var(--ink); font-weight: 600; }
 
   .callout {
@@ -342,8 +342,9 @@
     <dl class="brief">
       <div>
         <dt>Problem</dt>
-        <dd>Two clusters in a single region served all traffic. Losing one removed <b>half the serving
-            capacity</b>, and a region-level failure took both.</dd>
+        <dd>A single cluster in one region served all traffic, with only Redis running in a dual
+            configuration. There was <b>no second cluster to fail over to</b>, and a region-level failure
+            took everything.</dd>
       </div>
       <div>
         <dt>Constraint</dt>
@@ -395,7 +396,7 @@
 
           <!-- BEFORE -->
           <text class="t-eye" x="24" y="26">BEFORE</text>
-          <text class="t-ttl" x="24" y="52">Single region, two clusters</text>
+          <text class="t-ttl" x="24" y="52">Single region, one cluster</text>
 
           <rect class="bar" x="24" y="70" width="452" height="32" rx="2"/>
           <text class="t-row" x="38" y="91">API traffic</text>
@@ -404,21 +405,15 @@
           <rect class="region" x="24" y="132" width="452" height="186" rx="3"/>
           <text class="t-reg" x="38" y="152">SINGLE REGION</text>
 
-          <rect class="box" x="44" y="164" width="196" height="134" rx="2"/>
-          <text class="t-name" x="58" y="188">Cluster 1</text>
-          <text class="t-row"  x="58" y="212">Application</text>
-          <text class="t-row"  x="58" y="234">Redis</text>
-          <text class="t-row"  x="58" y="256">Kafka</text>
-          <text class="t-row"  x="58" y="278">Elasticsearch</text>
+          <rect class="box" x="44" y="164" width="412" height="134" rx="2"/>
+          <text class="t-name" x="60" y="188">Cluster 1</text>
+          <text class="t-row"  x="60" y="212">Application</text>
+          <text class="t-sig"  x="60" y="234">Redis ×2</text>
+          <text class="t-arw"  x="132" y="234">dual, the only replicated layer</text>
+          <text class="t-row"  x="60" y="256">Kafka</text>
+          <text class="t-row"  x="60" y="278">Elasticsearch</text>
 
-          <rect class="box" x="260" y="164" width="196" height="134" rx="2"/>
-          <text class="t-name" x="274" y="188">Cluster 2</text>
-          <text class="t-row"  x="274" y="212">Application</text>
-          <text class="t-row"  x="274" y="234">Redis</text>
-          <text class="t-row"  x="274" y="256">Kafka</text>
-          <text class="t-row"  x="274" y="278">Elasticsearch</text>
-
-          <text class="t-crit" x="24" y="350">one region, one blast radius</text>
+          <text class="t-crit" x="24" y="350">no second cluster to fail over to</text>
 
           <line class="divider" x1="510" y1="18" x2="510" y2="364"/>
 
