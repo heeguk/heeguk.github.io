@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Infrastructure engineering case studies: zero-downtime multi-region failover migration, a CQRS read model pipeline with rate-controlled resync, and automated production triage.">
+<meta name="description" content="Infrastructure engineering case studies: zero-downtime multi-region failover, a CQRS read model pipeline with rate-controlled resync, and a scheduled agent that triages production logs daily.">
 <meta name="author" content="Heeguk Son">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Heeguk Son, Infrastructure &amp; Backend Software Engineer">
@@ -144,7 +144,7 @@
   }
 
   /* ---------- brief (problem / design / verification) ---------- */
-  .brief { margin: 0; display: grid; gap: 0; max-width: 88ch; }
+  .brief { margin: 0; display: grid; gap: 0; max-width: 100ch; }
   .brief > div {
     display: grid;
     grid-template-columns: 108px 1fr;
@@ -172,7 +172,7 @@
     font-size: clamp(17px, 2.1vw, 21px);
     font-weight: 600;
     letter-spacing: -.012em;
-    max-width: 40ch;
+    text-wrap: balance;
     line-height: 1.35;
   }
 
@@ -324,7 +324,7 @@
     <p class="role">Infrastructure &amp; Backend Software Engineer</p>
     <p class="oneline">Production systems at 100K+ API RPS · distributed data pipelines · reliability automation</p>
     <div class="meta">
-      <span><b>NAVER Shopping</b> · Backend Software Engineer</span>
+      <span><b>NAVER Corporation</b> · Backend Software Engineer</span>
       <span>Jan 2022 to Jul 2026</span>
       <span>Java · Spring Boot · Kafka · Redis · Elasticsearch</span>
     </div>
@@ -661,7 +661,7 @@
   <article class="record">
     <p class="domain">OPERABILITY &amp; AUTOMATION</p>
     <h2>Automated Production Triage Across 10+ Services</h2>
-    <p class="stack">Log normalization · knowledge base · Jira automation · GitHub Actions</p>
+    <p class="stack">Scheduled CI job · coding agent · knowledge base in version control · Jira automation</p>
 
     <dl class="brief">
       <div>
@@ -672,25 +672,32 @@
       </div>
       <div>
         <dt>Design</dt>
-        <dd>Heterogeneous logs normalize into a single schema, then get classified against an operational
-            knowledge base holding the team's accumulated judgments. Routine findings roll into a daily
-            report; critical errors open a Jira ticket and alert the service owner.</dd>
+        <dd>A scheduled job runs <b>once a day on a CI runner</b>. A coding agent collects the day's logs
+            across the services, normalizes them into one shape, and classifies each finding against a
+            knowledge base of the team's accumulated judgments that lives in version control beside the
+            code.</dd>
+      </div>
+      <div>
+        <dt>Output</dt>
+        <dd>Routine findings roll into a daily report for service owners. Critical errors open a Jira
+            ticket and alert the owner directly.</dd>
       </div>
       <div>
         <dt>Closing the loop</dt>
-        <dd>Operator corrections write back into the knowledge base, so <b>a misjudgment is corrected once
-            instead of re-explained</b>.</dd>
+        <dd>Operator corrections land as <b>pull requests against the knowledge base</b>, so a misjudgment
+            is corrected once instead of re-explained, and every change to the triage rules is reviewed
+            like code.</dd>
       </div>
     </dl>
 
     <div class="results">
       <div>
         <span class="val">10+</span>
-        <span class="cap">services normalized into a single triage schema</span>
+        <span class="cap">services collected and normalized into one triage shape</span>
       </div>
       <div>
         <span class="val">Daily</span>
-        <span class="cap">automated issue report per service owner</span>
+        <span class="cap">scheduled run on a CI runner, with no human trigger</span>
       </div>
       <div>
         <span class="val">Auto-filed</span>
@@ -698,11 +705,11 @@
       </div>
     </div>
 
-    <p class="fig-label">Triage loop</p>
+    <p class="fig-label">Daily run</p>
     <figure>
       <div class="plate">
-        <svg viewBox="0 0 1020 348" role="img"
-             aria-label="Logs from ten or more services are normalized and classified against an operational knowledge base, routed to a daily report or an auto-filed Jira ticket, with operator feedback from both outputs flowing back into the knowledge base">
+        <svg viewBox="0 0 1020 404" role="img"
+             aria-label="A daily schedule on a CI runner triggers an agent run that collects logs from more than ten services, normalizes and classifies them against a knowledge base kept in version control, then emits a daily report and auto-filed Jira tickets. Operator review returns corrections to the knowledge base as pull requests.">
           <defs>
             <marker id="cn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M0,0 L10,5 L0,10 z" class="mk-n"/>
@@ -712,71 +719,63 @@
             </marker>
           </defs>
 
-          <rect class="box" x="24" y="62" width="156" height="74" rx="2"/>
-          <text class="t-name" x="38" y="92">10+ services</text>
-          <text class="t-sub"  x="38" y="114">heterogeneous logs</text>
+          <rect class="boxs" x="24" y="34" width="200" height="58" rx="2"/>
+          <text class="t-name" x="40" y="60">Daily schedule</text>
+          <text class="t-sig"  x="40" y="80">once a day, CI runner</text>
 
-          <line class="l-n" x1="182" y1="99" x2="208" y2="99" marker-end="url(#cn)"/>
+          <rect class="box" x="24" y="150" width="200" height="74" rx="2"/>
+          <text class="t-name" x="40" y="178">10+ services</text>
+          <text class="t-sub"  x="40" y="200">heterogeneous log formats</text>
 
-          <rect class="box" x="212" y="62" width="164" height="74" rx="2"/>
-          <text class="t-name" x="226" y="92">Normalizer</text>
-          <text class="t-sub"  x="226" y="114">one schema</text>
+          <path class="l-s" d="M 124 92 L 124 138 L 272 138" marker-end="url(#cs)"/>
+          <text class="t-sig" x="134" y="128">triggers</text>
 
-          <line class="l-n" x1="378" y1="99" x2="404" y2="99" marker-end="url(#cn)"/>
+          <line class="l-n" x1="226" y1="187" x2="272" y2="187" marker-end="url(#cn)"/>
+          <text class="t-arw" x="232" y="180">collects</text>
 
-          <rect class="box" x="408" y="62" width="164" height="74" rx="2"/>
-          <text class="t-name" x="422" y="92">Triage classifier</text>
-          <text class="t-sub"  x="422" y="114">LLM-assisted · severity</text>
+          <rect class="box" x="276" y="110" width="250" height="130" rx="2"/>
+          <text class="t-name" x="294" y="140">Agent run</text>
+          <text class="t-sub"  x="294" y="164">collect and normalize</text>
+          <text class="t-sub"  x="294" y="184">classify each finding</text>
+          <text class="t-sig"  x="294" y="214">coding agent on the runner</text>
 
-          <!-- fan out -->
-          <path class="l-n" d="M 574 86 L 600 86 L 600 60 L 652 60" marker-end="url(#cn)"/>
-          <path class="l-n" d="M 574 112 L 600 112 L 600 138 L 652 138" marker-end="url(#cn)"/>
+          <rect class="box" x="276" y="280" width="250" height="74" rx="2"/>
+          <text class="t-name" x="294" y="308">Knowledge base</text>
+          <text class="t-sub"  x="294" y="330">team judgments</text>
+          <text class="t-sub"  x="294" y="346">kept in version control</text>
 
-          <rect class="box" x="656" y="34" width="296" height="52" rx="2"/>
-          <text class="t-name" x="670" y="58">Daily issue report</text>
-          <text class="t-sub"  x="670" y="76">rolled up per service owner</text>
+          <line class="l-n" x1="330" y1="276" x2="330" y2="244" marker-end="url(#cn)"/>
+          <text class="t-arw" x="340" y="264">known judgments</text>
 
-          <rect class="boxs" x="656" y="112" width="296" height="52" rx="2"/>
-          <text class="t-name" x="670" y="136">Jira ticket + owner alert</text>
-          <text class="t-sig"  x="670" y="154">critical only · auto-filed</text>
+          <line class="l-n" x1="528" y1="139" x2="574" y2="139" marker-end="url(#cn)"/>
+          <line class="l-s" x1="528" y1="211" x2="574" y2="211" marker-end="url(#cs)"/>
 
-          <!-- collector: both outputs feed operator review -->
-          <path class="l-s" d="M 954 60 L 976 60 L 976 262 L 958 262" marker-end="url(#cs)"/>
-          <path class="l-s" d="M 954 138 L 976 138"/>
+          <rect class="box" x="578" y="110" width="300" height="58" rx="2"/>
+          <text class="t-name" x="596" y="136">Daily issue report</text>
+          <text class="t-sub"  x="596" y="156">rolled up per service owner</text>
 
-          <!-- knowledge base -->
-          <rect class="box" x="408" y="224" width="164" height="76" rx="2"/>
-          <text class="t-name" x="422" y="254">Operational</text>
-          <text class="t-name" x="422" y="272">knowledge base</text>
-          <text class="t-sub"  x="422" y="292">team judgments</text>
+          <rect class="boxs" x="578" y="182" width="300" height="58" rx="2"/>
+          <text class="t-name" x="596" y="208">Jira ticket + owner alert</text>
+          <text class="t-sig"  x="596" y="228">critical only, auto-filed</text>
 
-          <line class="l-n" x1="462" y1="220" x2="462" y2="142" marker-end="url(#cn)"/>
-          <text class="t-arw" x="472" y="186">accumulated judgments</text>
+          <path class="l-n" d="M 880 139 L 902 139 L 902 313 L 884 313" marker-end="url(#cn)"/>
+          <path class="l-n" d="M 880 211 L 902 211"/>
 
-          <rect class="box" x="656" y="224" width="296" height="76" rx="2"/>
-          <text class="t-name" x="670" y="254">Operator review</text>
-          <text class="t-sub"  x="670" y="276">"this was noise" / "this mattered"</text>
+          <rect class="box" x="578" y="280" width="300" height="74" rx="2"/>
+          <text class="t-name" x="596" y="308">Operator review</text>
+          <text class="t-sub"  x="596" y="332">was this noise, or did it matter</text>
 
-          <line class="l-s" x1="652" y1="262" x2="580" y2="262" marker-end="url(#cs)"/>
-          <text class="t-sig" x="616" y="252" text-anchor="middle">corrections</text>
+          <path class="l-s" d="M 728 354 L 728 380 L 400 380 L 400 358" marker-end="url(#cs)"/>
+          <text class="t-sig" x="564" y="374" text-anchor="middle">corrections as pull requests</text>
         </svg>
       </div>
       <figcaption>
-        Everything above the knowledge base is a pipeline. Everything below it is a <b>loop</b>. Both outputs,
-        the daily report and the auto-filed ticket, feed operator review, and review writes back to the
-        knowledge base that the classifier reads.
+        The classifier is not a running service. It is a <b>scheduled job</b>: one agent run per day on a CI
+        runner, reading a knowledge base that lives in the repository. That placement is what makes the
+        loop durable, because a correction arrives as a reviewed pull request rather than as an untracked
+        configuration change.
       </figcaption>
     </figure>
-
-    <div class="also">
-      <h3>Also shipped, same area</h3>
-      <p>
-        <b>CI validation workflows</b> with Java-based static checks that detect cache misuse, API
-        compatibility breaks and dependency drift, running automatically in GitHub Actions and surfacing
-        findings in pull requests. No cache-related production incidents or API compatibility regressions
-        since 2023.
-      </p>
-    </div>
   </article>
 
   <!-- ===================== PRINCIPLES ===================== -->
