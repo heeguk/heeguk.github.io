@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Infrastructure engineering case studies: zero-downtime multi-region failover migration, a CQRS read model pipeline with rate-controlled resync, and automated production triage.">
+<meta name="author" content="Heeguk Son">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Heeguk Son, Infrastructure &amp; Backend Software Engineer">
+<meta property="og:description" content="Zero-downtime multi-region failover across four stateful layers, a CQRS read model pipeline sustaining 10K events/sec during billion-event backfills, and automated production triage.">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { color-scheme: light dark; }
+  body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<title>Heeguk Son Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Azeret+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --bg:        #EDEEEA;
+    --surface:   #FFFFFF;
+    --surface-2: #E2E4DF;
+    --ink:       #161918;
+    --ink-2:     #4E5451;
+    --ink-3:     #7B817D;
+    --rule:      #CBCFC9;
+    --rule-soft: #DDE0DB;
+    --signal:    #8A6D13;
+    --critical:  #9B3D28;
+    --sans: 'Archivo', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    --mono: 'Azeret Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:        #0F1211;
+      --surface:   #171B1A;
+      --surface-2: #1F2523;
+      --ink:       #E8E9E5;
+      --ink-2:     #9BA19D;
+      --ink-3:     #6C736F;
+      --rule:      #2B312F;
+      --rule-soft: #232826;
+      --signal:    #C9A227;
+      --critical:  #C0563F;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg:        #0F1211;
+    --surface:   #171B1A;
+    --surface-2: #1F2523;
+    --ink:       #E8E9E5;
+    --ink-2:     #9BA19D;
+    --ink-3:     #6C736F;
+    --rule:      #2B312F;
+    --rule-soft: #232826;
+    --signal:    #C9A227;
+    --critical:  #C0563F;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet { max-width: 1096px; margin: 0 auto; padding: 0 28px 88px; }
+
+  /* ---------- masthead ---------- */
+  .masthead { padding: 68px 0 0; }
+  .name {
+    font-size: clamp(36px, 5.6vw, 56px);
+    font-weight: 700;
+    letter-spacing: -.03em;
+    line-height: 1.02;
+    margin: 0 0 10px;
+  }
+  .role {
+    font-size: clamp(17px, 2.1vw, 21px);
+    font-weight: 500;
+    color: var(--ink);
+    margin: 0 0 18px;
+  }
+  .oneline {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--signal);
+    margin: 0 0 30px;
+    line-height: 1.7;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 30px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    padding: 15px 0;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--rule);
+  }
+  .meta b { color: var(--ink-2); font-weight: 500; }
+  .confidential {
+    font-size: 11.5px;
+    font-family: var(--mono);
+    color: var(--ink-3);
+    margin: 12px 0 0;
+    line-height: 1.6;
+  }
+
+  /* ---------- record ---------- */
+  .record { padding-top: 76px; }
+  .domain {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .2em;
+    color: var(--signal);
+    margin: 0 0 11px;
+  }
+  h2 {
+    font-size: clamp(25px, 3.3vw, 34px);
+    font-weight: 700;
+    letter-spacing: -.022em;
+    line-height: 1.14;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+  .stack {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    margin: 0 0 30px;
+  }
+
+  /* ---------- brief (problem / design / verification) ---------- */
+  .brief { margin: 0; display: grid; gap: 0; max-width: 88ch; }
+  .brief > div {
+    display: grid;
+    grid-template-columns: 108px 1fr;
+    gap: 22px;
+    padding: 15px 0;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .brief > div:last-child { border-bottom: 1px solid var(--rule-soft); }
+  .brief dt {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding-top: 4px;
+  }
+  .brief dd { margin: 0; font-size: 15.5px; color: var(--ink-2); }
+  .brief dd b { color: var(--ink); font-weight: 600; }
+
+  .callout {
+    margin: 28px 0 0;
+    padding: 18px 0 18px 20px;
+    border-left: 3px solid var(--signal);
+    font-size: clamp(17px, 2.1vw, 21px);
+    font-weight: 600;
+    letter-spacing: -.012em;
+    max-width: 40ch;
+    line-height: 1.35;
+  }
+
+  /* ---------- result strip ---------- */
+  .results {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--ink);
+    background: var(--surface);
+    margin: 30px 0 0;
+  }
+  .results > div { padding: 24px 24px 22px; border-right: 1px solid var(--rule); }
+  .results > div:last-child { border-right: 0; }
+  .results .val {
+    display: block;
+    font-family: var(--mono);
+    font-size: clamp(26px, 3.6vw, 36px);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.04em;
+    color: var(--signal);
+    line-height: 1.05;
+    margin-bottom: 10px;
+  }
+  .results .cap { display: block; font-size: 12.5px; color: var(--ink-2); line-height: 1.42; }
+
+  /* ---------- figures ---------- */
+  figure { margin: 32px 0 0; }
+  .plate {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: 24px;
+    overflow-x: auto;
+  }
+  .plate svg { display: block; max-width: 100%; height: auto; min-width: 700px; }
+  figcaption {
+    margin-top: 13px;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    max-width: 104ch;
+    text-wrap: pretty;
+  }
+  figcaption b { color: var(--ink); font-weight: 600; }
+  .fig-label {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 34px 0 12px;
+  }
+
+  /* ---------- svg tokens ---------- */
+  .box  { fill: var(--surface-2); stroke: var(--rule); stroke-width: 1; }
+  .boxs { fill: var(--surface-2); stroke: var(--signal); stroke-width: 1.6; }
+  .region { fill: none; stroke: var(--ink-3); stroke-width: 1.2; stroke-dasharray: 7 5; }
+  .bar  { fill: var(--surface-2); stroke: var(--ink-3); stroke-width: 1; }
+  .chip { fill: var(--surface); stroke: var(--signal); stroke-width: 1; }
+  .l-n  { stroke: var(--ink-3);    stroke-width: 1.3; fill: none; }
+  .l-s  { stroke: var(--signal);   stroke-width: 1.6; fill: none; }
+  .l-c  { stroke: var(--critical); stroke-width: 1.4; fill: none; stroke-dasharray: 5 4; }
+  .thick { stroke-width: 2.8; }
+  .mk-n { fill: var(--ink-3); }
+  .mk-s { fill: var(--signal); }
+  .divider { stroke: var(--rule); stroke-width: 1; }
+
+  .t-eye  { fill: var(--ink-3);   font-family: var(--mono); font-size: 10px; letter-spacing: .18em; }
+  .t-reg  { fill: var(--ink-3);   font-family: var(--mono); font-size: 10px; letter-spacing: .14em; }
+  .t-ttl  { fill: var(--ink);     font-family: var(--sans); font-size: 15px; font-weight: 700; }
+  .t-name { fill: var(--ink);     font-family: var(--sans); font-size: 13px; font-weight: 600; }
+  .t-row  { fill: var(--ink-2);   font-family: var(--mono); font-size: 10.5px; }
+  .t-sub  { fill: var(--ink-3);   font-family: var(--mono); font-size: 9.5px; }
+  .t-arw  { fill: var(--ink-3);   font-family: var(--mono); font-size: 9.5px; }
+  .t-sig  { fill: var(--signal);  font-family: var(--mono); font-size: 10.5px; font-weight: 500; }
+  .t-sigb { fill: var(--signal);  font-family: var(--sans); font-size: 13px; font-weight: 600; }
+  .t-crit { fill: var(--critical);font-family: var(--mono); font-size: 10.5px; font-weight: 500; }
+  .dim    { opacity: .4; }
+
+  /* ---------- also shipped ---------- */
+  .also {
+    margin: 34px 0 0;
+    border: 1px solid var(--rule);
+    background: var(--surface);
+    padding: 22px 24px;
+    max-width: 88ch;
+  }
+  .also h3 {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0 0 12px;
+  }
+  .also p { margin: 0; font-size: 14.5px; color: var(--ink-2); }
+  .also b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- principles ---------- */
+  .principles { margin-top: 84px; padding-top: 22px; border-top: 1px solid var(--ink); }
+  .principles h3 {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .2em;
+    color: var(--signal);
+    margin: 0 0 16px;
+  }
+  .principles ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; }
+  .principles li {
+    font-size: 14.5px;
+    color: var(--ink-2);
+    padding: 11px 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .principles li:last-child { border-bottom: 0; }
+
+  footer {
+    margin-top: 52px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 26px;
+  }
+
+  a { color: var(--signal); text-underline-offset: 3px; }
+  :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
+
+  @media (max-width: 780px) {
+    .sheet { padding: 0 18px 68px; }
+    .masthead { padding-top: 46px; }
+    .results { grid-template-columns: 1fr; }
+    .results > div { border-right: 0; border-bottom: 1px solid var(--rule); }
+    .results > div:last-child { border-bottom: 0; }
+    .brief > div { grid-template-columns: 1fr; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header class="masthead">
+    <h1 class="name">Heeguk Son</h1>
+    <p class="role">Infrastructure &amp; Backend Software Engineer</p>
+    <p class="oneline">Production systems at 100K+ API RPS · distributed data pipelines · reliability automation</p>
+    <div class="meta">
+      <span><b>NAVER Shopping</b> · Backend Software Engineer</span>
+      <span>Jan 2022 to Jul 2026</span>
+      <span>Java · Spring Boot · Kafka · Redis · Elasticsearch</span>
+    </div>
+    <p class="confidential">
+      Architecture diagrams are sanitized; proprietary names, configuration, and data are omitted.
+    </p>
+  </header>
+
+  <!-- ===================== 1. HIGH AVAILABILITY ===================== -->
+  <article class="record">
+    <p class="domain">HIGH AVAILABILITY</p>
+    <h2>Multi-Region Triple-Cluster Failover</h2>
+    <p class="stack">Application · Redis · Kafka · Elasticsearch</p>
+
+    <dl class="brief">
+      <div>
+        <dt>Problem</dt>
+        <dd>Two clusters in a single region served all traffic. Losing one removed <b>half the serving
+            capacity</b>, and a region-level failure took both.</dd>
+      </div>
+      <div>
+        <dt>Constraint</dt>
+        <dd>The migration had to run <b>with no service downtime</b>, across four layers that fail over on
+            different terms. Application servers are stateless and can be shifted; Redis, Kafka and
+            Elasticsearch each replicate and recover on their own semantics, so there was never a single
+            fact called "the cluster failed over" to verify.</dd>
+      </div>
+      <div>
+        <dt>Design</dt>
+        <dd>Migrated all four layers into a triple-cluster, multi-region topology. The target was for
+            <b>a single surviving cluster to sustain serving capacity</b> while the stateful systems
+            continued to maintain correct replication behavior.</dd>
+      </div>
+      <div>
+        <dt>Verification</dt>
+        <dd>A failure drill removed two of the three clusters at once under production-scale load,
+            measuring throughput on the survivor and replication lag on every stateful layer.</dd>
+      </div>
+    </dl>
+
+    <p class="callout">Four layers, four different failover semantics, and no downtime window.</p>
+
+    <div class="results">
+      <div>
+        <span class="val">100K+</span>
+        <span class="cap">API RPS sustained by the surviving cluster</span>
+      </div>
+      <div>
+        <span class="val">2 of 3</span>
+        <span class="cap">clusters removed simultaneously in the drill</span>
+      </div>
+      <div>
+        <span class="val">4</span>
+        <span class="cap">layers migrated together, app and all stateful systems</span>
+      </div>
+    </div>
+
+    <p class="fig-label">Topology</p>
+    <figure>
+      <div class="plate">
+        <svg viewBox="0 0 1020 396" role="img"
+             aria-label="Before: one region boundary containing two clusters. After: three region boundaries each containing one cluster, every cluster running application, Redis, Kafka and Elasticsearch">
+          <defs>
+            <marker id="an" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" class="mk-n"/>
+            </marker>
+          </defs>
+
+          <!-- BEFORE -->
+          <text class="t-eye" x="24" y="26">BEFORE</text>
+          <text class="t-ttl" x="24" y="52">Single region, two clusters</text>
+
+          <rect class="bar" x="24" y="70" width="452" height="32" rx="2"/>
+          <text class="t-row" x="38" y="91">API traffic</text>
+          <line class="l-n" x1="250" y1="102" x2="250" y2="126" marker-end="url(#an)"/>
+
+          <rect class="region" x="24" y="132" width="452" height="186" rx="3"/>
+          <text class="t-reg" x="38" y="152">SINGLE REGION</text>
+
+          <rect class="box" x="44" y="164" width="196" height="134" rx="2"/>
+          <text class="t-name" x="58" y="188">Cluster 1</text>
+          <text class="t-row"  x="58" y="212">Application</text>
+          <text class="t-row"  x="58" y="234">Redis</text>
+          <text class="t-row"  x="58" y="256">Kafka</text>
+          <text class="t-row"  x="58" y="278">Elasticsearch</text>
+
+          <rect class="box" x="260" y="164" width="196" height="134" rx="2"/>
+          <text class="t-name" x="274" y="188">Cluster 2</text>
+          <text class="t-row"  x="274" y="212">Application</text>
+          <text class="t-row"  x="274" y="234">Redis</text>
+          <text class="t-row"  x="274" y="256">Kafka</text>
+          <text class="t-row"  x="274" y="278">Elasticsearch</text>
+
+          <text class="t-crit" x="24" y="350">one region, one blast radius</text>
+
+          <line class="divider" x1="510" y1="18" x2="510" y2="364"/>
+
+          <!-- AFTER -->
+          <text class="t-eye" x="544" y="26">AFTER</text>
+          <text class="t-ttl" x="544" y="52">Multiple regions, three clusters</text>
+
+          <rect class="bar" x="544" y="70" width="452" height="32" rx="2"/>
+          <text class="t-row" x="558" y="91">API traffic</text>
+          <line class="l-n" x1="626" y1="102" x2="626" y2="126" marker-end="url(#an)"/>
+          <line class="l-n" x1="770" y1="102" x2="770" y2="126" marker-end="url(#an)"/>
+          <line class="l-n" x1="914" y1="102" x2="914" y2="126" marker-end="url(#an)"/>
+
+          <rect class="region" x="544" y="132" width="452" height="186" rx="3"/>
+          <text class="t-reg" x="556" y="152">MULTI-REGION DEPLOYMENT</text>
+
+          <rect class="box" x="556" y="164" width="132" height="134" rx="2"/>
+          <text class="t-name" x="568" y="188">Cluster 1</text>
+          <text class="t-sub"  x="568" y="212">Application</text>
+          <text class="t-sub"  x="568" y="234">Redis</text>
+          <text class="t-sub"  x="568" y="256">Kafka</text>
+          <text class="t-sub"  x="568" y="278">Elasticsearch</text>
+
+          <rect class="box" x="704" y="164" width="132" height="134" rx="2"/>
+          <text class="t-name" x="716" y="188">Cluster 2</text>
+          <text class="t-sub"  x="716" y="212">Application</text>
+          <text class="t-sub"  x="716" y="234">Redis</text>
+          <text class="t-sub"  x="716" y="256">Kafka</text>
+          <text class="t-sub"  x="716" y="278">Elasticsearch</text>
+
+          <rect class="box" x="852" y="164" width="132" height="134" rx="2"/>
+          <text class="t-name" x="864" y="188">Cluster 3</text>
+          <text class="t-sub"  x="864" y="212">Application</text>
+          <text class="t-sub"  x="864" y="234">Redis</text>
+          <text class="t-sub"  x="864" y="256">Kafka</text>
+          <text class="t-sub"  x="864" y="278">Elasticsearch</text>
+
+          <text class="t-sig" x="544" y="350">clusters distributed across regions</text>
+        </svg>
+      </div>
+      <figcaption>
+        Before, a single boundary contained everything. After, <b>no single boundary contains enough to
+        take the service down</b>.
+      </figcaption>
+    </figure>
+
+    <p class="fig-label">Failure drill</p>
+    <figure>
+      <div class="plate">
+        <svg viewBox="0 0 1020 250" role="img"
+             aria-label="Failure drill: clusters one and two removed, all API traffic converges on cluster three, which sustained over 100 thousand requests per second">
+          <defs>
+            <marker id="as" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" class="mk-s"/>
+            </marker>
+          </defs>
+
+          <rect class="bar" x="24" y="24" width="972" height="36" rx="2"/>
+          <text class="t-row" x="40" y="47">API traffic, production-scale load</text>
+
+          <line class="l-c" x1="179" y1="60" x2="179" y2="110"/>
+          <rect class="box dim" x="24" y="116" width="310" height="80" rx="2"/>
+          <text class="t-name dim" x="42" y="143">Cluster 1</text>
+          <text class="t-sub dim"  x="42" y="166">app · Redis · Kafka · Elasticsearch</text>
+          <line class="l-c" x1="150" y1="132" x2="208" y2="182"/>
+          <line class="l-c" x1="208" y1="132" x2="150" y2="182"/>
+          <text class="t-crit" x="24" y="220">removed</text>
+
+          <line class="l-c" x1="510" y1="60" x2="510" y2="110"/>
+          <rect class="box dim" x="355" y="116" width="310" height="80" rx="2"/>
+          <text class="t-name dim" x="373" y="143">Cluster 2</text>
+          <text class="t-sub dim"  x="373" y="166">app · Redis · Kafka · Elasticsearch</text>
+          <line class="l-c" x1="481" y1="132" x2="539" y2="182"/>
+          <line class="l-c" x1="539" y1="132" x2="481" y2="182"/>
+          <text class="t-crit" x="355" y="220">removed</text>
+
+          <line class="l-s thick" x1="841" y1="60" x2="841" y2="110" marker-end="url(#as)"/>
+          <rect class="boxs" x="686" y="116" width="310" height="80" rx="2"/>
+          <text class="t-name" x="704" y="143">Cluster 3</text>
+          <text class="t-sub"  x="704" y="166">app · Redis · Kafka · Elasticsearch</text>
+          <text class="t-sigb" x="686" y="222">sustained 100K+ API RPS</text>
+        </svg>
+      </div>
+      <figcaption>
+        Throughput on the survivor was measured alongside replication lag on each stateful layer, which
+        keeps <b>serving availability</b> and <b>stateful replication correctness</b> as two separate
+        observations rather than one assumption.
+      </figcaption>
+    </figure>
+  </article>
+
+  <!-- ===================== 2. DISTRIBUTED SYSTEMS ===================== -->
+  <article class="record">
+    <p class="domain">DISTRIBUTED SYSTEMS</p>
+    <h2>Event-Driven Replication With Real-Time and Resync Processing</h2>
+    <p class="stack">Kafka · CQRS read model projection · rate-controlled backfill</p>
+
+    <dl class="brief">
+      <div>
+        <dt>Context</dt>
+        <dd>Product and member data lived in source-of-truth databases owned by upstream teams. Serving
+            every API request from them loaded systems we did not own, so we consumed change events from
+            Kafka and served reads from our own replica. A <b>CQRS read model projection</b>, with the
+            ownership boundary at the event stream.</dd>
+      </div>
+      <div>
+        <dt>Problem</dt>
+        <dd>Steady state was hundreds to a few thousand events per second. Adding a single field to the
+            product schema produced <b>billions of resync events at once</b>. Sent through the normal
+            stream, live edits queued behind the backfill and consumer lag grew: a seller could update a
+            product and not see it for hours.</dd>
+      </div>
+      <div>
+        <dt>Design</dt>
+        <dd>Same topic, same consumer group. An event type field let the consumer branch into a real-time
+            path and a resync path. The consumer's throughput budget was roughly 10K events per second;
+            real-time took what it needed, typically around 1K per second, and the resync path was
+            <b>rate-controlled to consume only the remaining headroom</b>. This was the design I
+            proposed.</dd>
+      </div>
+      <div>
+        <dt>Ordering</dt>
+        <dd>A resync batch is a snapshot taken at one point in time, so a stale resync event must not
+            overwrite a newer edit. The <b>snapshot publish time is the boundary</b>: real-time events
+            after it always win. The comparison is against that batch boundary rather than a per-event
+            clock comparison.</dd>
+      </div>
+    </dl>
+
+    <p class="callout">Eventual consistency was a domain judgment. The same structure would be wrong for
+      inventory decrement or account balances.</p>
+
+    <div class="results">
+      <div>
+        <span class="val">10K/s</span>
+        <span class="cap">combined events per second sustained during backfills</span>
+      </div>
+      <div>
+        <span class="val">Billions</span>
+        <span class="cap">of product events replayed in a single resync</span>
+      </div>
+      <div>
+        <span class="val">No increase</span>
+        <span class="cap">in real-time processing lag, monitored throughout the backfill runs</span>
+      </div>
+    </div>
+
+    <p class="fig-label">Message flow and capacity budget</p>
+    <figure>
+      <div class="plate">
+        <svg viewBox="0 0 1020 726" role="img"
+             aria-label="Upstream source of truth publishes change events to one Kafka topic. A single consumer group with a throughput budget of about 10 thousand events per second inspects the event type and routes each message into a real-time path or a rate-controlled resync path. An ordering guard drops resync events older than the batch snapshot before both paths write the read model.">
+          <defs>
+            <marker id="bn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" class="mk-n"/>
+            </marker>
+            <marker id="bs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" class="mk-s"/>
+            </marker>
+          </defs>
+
+          <!-- upstream -->
+          <rect class="box" x="300" y="26" width="420" height="60" rx="2"/>
+          <text class="t-name" x="318" y="52">Source of truth, upstream teams</text>
+          <text class="t-sub"  x="318" y="72">product and member domains</text>
+
+          <line class="l-n" x1="510" y1="86" x2="510" y2="118" marker-end="url(#bn)"/>
+          <text class="t-arw" x="522" y="106">create · update · delete</text>
+
+          <!-- topic -->
+          <rect class="box" x="268" y="122" width="484" height="64" rx="2"/>
+          <text class="t-name" x="286" y="148">Product event topic</text>
+          <text class="t-sub"  x="286" y="170">one topic · partitioned event stream</text>
+
+          <!-- boundary -->
+          <line class="divider" x1="24" y1="210" x2="996" y2="210" stroke-dasharray="6 5"/>
+          <text class="t-eye" x="24" y="202">KAFKA</text>
+          <text class="t-eye" x="24" y="230">APPLICATION</text>
+
+          <line class="l-n" x1="510" y1="186" x2="510" y2="246" marker-end="url(#bn)"/>
+
+          <!-- consumer with capacity meter -->
+          <rect class="box" x="268" y="250" width="484" height="128" rx="2"/>
+          <text class="t-name" x="286" y="276">Consumer</text>
+          <text class="t-sub"  x="286" y="296">one consumer group · single flow · inspects event type</text>
+
+          <text class="t-eye" x="286" y="322">THROUGHPUT BUDGET</text>
+          <rect class="bar" x="286" y="330" width="448" height="16" rx="1"/>
+          <rect x="286" y="330" width="45" height="16" rx="1" fill="var(--signal)"/>
+          <text class="t-sig" x="286" y="364">1K/s real-time</text>
+          <text class="t-arw" x="345" y="364">remaining headroom to resync, rate-controlled</text>
+          <text class="t-arw" x="734" y="322" text-anchor="end">10K/s</text>
+
+          <!-- branch -->
+          <line class="l-n" x1="510" y1="378" x2="510" y2="410"/>
+          <path class="l-n" d="M 510 410 L 356 410 L 356 430" marker-end="url(#bn)"/>
+          <path class="l-s" d="M 510 410 L 664 410 L 664 430" marker-end="url(#bs)"/>
+          <text class="t-arw" x="498" y="402" text-anchor="end">type = REALTIME</text>
+          <text class="t-sig" x="522" y="402">type = RESYNC</text>
+
+          <rect class="box" x="236" y="434" width="240" height="78" rx="2"/>
+          <text class="t-name" x="254" y="460">Real-time path</text>
+          <text class="t-sub"  x="254" y="482">normal incremental update</text>
+          <text class="t-sub"  x="254" y="500">takes what it needs first</text>
+
+          <rect class="boxs" x="544" y="434" width="240" height="78" rx="2"/>
+          <text class="t-name" x="562" y="460">Resync path</text>
+          <text class="t-sig"  x="562" y="482">rebuild and repair logic</text>
+          <text class="t-sig"  x="562" y="500">throttled to the headroom</text>
+
+          <text class="t-sig" x="820" y="462">the split is a routing</text>
+          <text class="t-sig" x="820" y="480">decision in application</text>
+          <text class="t-sig" x="820" y="498">logic, after consuming</text>
+
+          <!-- merge -->
+          <path class="l-n" d="M 356 512 L 356 544 L 510 544 L 510 566" marker-end="url(#bn)"/>
+          <path class="l-s" d="M 664 512 L 664 544 L 510 544"/>
+
+          <!-- ordering guard -->
+          <rect class="box" x="330" y="570" width="360" height="74" rx="2"/>
+          <text class="t-name" x="348" y="596">Ordering guard</text>
+          <text class="t-sub"  x="348" y="618">resync batch is a snapshot at time T</text>
+          <text class="t-sub"  x="348" y="636">real-time events after T always win</text>
+
+          <line class="l-n" x1="510" y1="644" x2="510" y2="672" marker-end="url(#bn)"/>
+
+          <rect class="box" x="330" y="676" width="360" height="46" rx="2"/>
+          <text class="t-name" x="348" y="704">Read model, served by our API</text>
+        </svg>
+      </div>
+      <figcaption>
+        Everything below the boundary is one consumer. The split is a routing decision made after the
+        message is read, which is why a rebuild of billions of events needed <b>no additional Kafka
+        topology</b>.
+      </figcaption>
+    </figure>
+  </article>
+
+  <!-- ===================== 3. OPERABILITY ===================== -->
+  <article class="record">
+    <p class="domain">OPERABILITY &amp; AUTOMATION</p>
+    <h2>Automated Production Triage Across 10+ Services</h2>
+    <p class="stack">Log normalization · knowledge base · Jira automation · GitHub Actions</p>
+
+    <dl class="brief">
+      <div>
+        <dt>Problem</dt>
+        <dd>Ten or more services logged in different shapes into one operational inbox. The recurring cost
+            was <b>re-deciding every day that a familiar error is still benign</b>, and occasionally missing
+            the one that was not.</dd>
+      </div>
+      <div>
+        <dt>Design</dt>
+        <dd>Heterogeneous logs normalize into a single schema, then get classified against an operational
+            knowledge base holding the team's accumulated judgments. Routine findings roll into a daily
+            report; critical errors open a Jira ticket and alert the service owner.</dd>
+      </div>
+      <div>
+        <dt>Closing the loop</dt>
+        <dd>Operator corrections write back into the knowledge base, so <b>a misjudgment is corrected once
+            instead of re-explained</b>.</dd>
+      </div>
+    </dl>
+
+    <div class="results">
+      <div>
+        <span class="val">10+</span>
+        <span class="cap">services normalized into a single triage schema</span>
+      </div>
+      <div>
+        <span class="val">Daily</span>
+        <span class="cap">automated issue report per service owner</span>
+      </div>
+      <div>
+        <span class="val">Auto-filed</span>
+        <span class="cap">Jira tickets and owner alerts on critical errors</span>
+      </div>
+    </div>
+
+    <p class="fig-label">Triage loop</p>
+    <figure>
+      <div class="plate">
+        <svg viewBox="0 0 1020 348" role="img"
+             aria-label="Logs from ten or more services are normalized and classified against an operational knowledge base, routed to a daily report or an auto-filed Jira ticket, with operator feedback from both outputs flowing back into the knowledge base">
+          <defs>
+            <marker id="cn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" class="mk-n"/>
+            </marker>
+            <marker id="cs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" class="mk-s"/>
+            </marker>
+          </defs>
+
+          <rect class="box" x="24" y="62" width="156" height="74" rx="2"/>
+          <text class="t-name" x="38" y="92">10+ services</text>
+          <text class="t-sub"  x="38" y="114">heterogeneous logs</text>
+
+          <line class="l-n" x1="182" y1="99" x2="208" y2="99" marker-end="url(#cn)"/>
+
+          <rect class="box" x="212" y="62" width="164" height="74" rx="2"/>
+          <text class="t-name" x="226" y="92">Normalizer</text>
+          <text class="t-sub"  x="226" y="114">one schema</text>
+
+          <line class="l-n" x1="378" y1="99" x2="404" y2="99" marker-end="url(#cn)"/>
+
+          <rect class="box" x="408" y="62" width="164" height="74" rx="2"/>
+          <text class="t-name" x="422" y="92">Triage classifier</text>
+          <text class="t-sub"  x="422" y="114">LLM-assisted · severity</text>
+
+          <!-- fan out -->
+          <path class="l-n" d="M 574 86 L 600 86 L 600 60 L 652 60" marker-end="url(#cn)"/>
+          <path class="l-n" d="M 574 112 L 600 112 L 600 138 L 652 138" marker-end="url(#cn)"/>
+
+          <rect class="box" x="656" y="34" width="296" height="52" rx="2"/>
+          <text class="t-name" x="670" y="58">Daily issue report</text>
+          <text class="t-sub"  x="670" y="76">rolled up per service owner</text>
+
+          <rect class="boxs" x="656" y="112" width="296" height="52" rx="2"/>
+          <text class="t-name" x="670" y="136">Jira ticket + owner alert</text>
+          <text class="t-sig"  x="670" y="154">critical only · auto-filed</text>
+
+          <!-- collector: both outputs feed operator review -->
+          <path class="l-s" d="M 954 60 L 976 60 L 976 262 L 958 262" marker-end="url(#cs)"/>
+          <path class="l-s" d="M 954 138 L 976 138"/>
+
+          <!-- knowledge base -->
+          <rect class="box" x="408" y="224" width="164" height="76" rx="2"/>
+          <text class="t-name" x="422" y="254">Operational</text>
+          <text class="t-name" x="422" y="272">knowledge base</text>
+          <text class="t-sub"  x="422" y="292">team judgments</text>
+
+          <line class="l-n" x1="462" y1="220" x2="462" y2="142" marker-end="url(#cn)"/>
+          <text class="t-arw" x="472" y="186">accumulated judgments</text>
+
+          <rect class="box" x="656" y="224" width="296" height="76" rx="2"/>
+          <text class="t-name" x="670" y="254">Operator review</text>
+          <text class="t-sub"  x="670" y="276">"this was noise" / "this mattered"</text>
+
+          <line class="l-s" x1="652" y1="262" x2="580" y2="262" marker-end="url(#cs)"/>
+          <text class="t-sig" x="616" y="252" text-anchor="middle">corrections</text>
+        </svg>
+      </div>
+      <figcaption>
+        Everything above the knowledge base is a pipeline. Everything below it is a <b>loop</b>. Both outputs,
+        the daily report and the auto-filed ticket, feed operator review, and review writes back to the
+        knowledge base that the classifier reads.
+      </figcaption>
+    </figure>
+
+    <div class="also">
+      <h3>Also shipped, same area</h3>
+      <p>
+        <b>CI validation workflows</b> with Java-based static checks that detect cache misuse, API
+        compatibility breaks and dependency drift, running automatically in GitHub Actions and surfacing
+        findings in pull requests. No cache-related production incidents or API compatibility regressions
+        since 2023.
+      </p>
+    </div>
+  </article>
+
+  <!-- ===================== PRINCIPLES ===================== -->
+  <section class="principles">
+    <h3>ENGINEERING PRINCIPLES</h3>
+    <ol>
+      <li>Test failure instead of inferring resilience from topology.</li>
+      <li>Give background workloads their own resource budget.</li>
+      <li>Close automation loops with operator feedback.</li>
+    </ol>
+  </section>
+
+  <footer>
+    <span>heeguk.son@wisc.edu</span>
+    <span>linkedin.com/in/heeguk-son</span>
+    <span>Madison, WI</span>
+    <span>M.S. Computer Sciences, UW Madison</span>
+  </footer>
+
+</div>
+</body>
+</html>
