@@ -11,7 +11,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <style>
     *, *::before, *::after { box-sizing: border-box; }
-    html { color-scheme: light dark; }
+    html { color-scheme: light dark; scroll-behavior: smooth; }
     body { margin: 0; }
     img { max-width: 100%; }
     [hidden] { display: none !important; }
@@ -120,7 +120,7 @@
     .meta b { color: var(--ink-2); font-weight: 500; }
 
     /* ---------- record ---------- */
-    .record { padding-top: 76px; }
+    .record { padding-top: 76px; scroll-margin-top: 24px; }
     .domain {
       font-family: var(--mono);
       font-size: 11px;
@@ -276,6 +276,7 @@
 
     a { color: var(--signal); text-underline-offset: 3px; }
     .contact a { color: inherit; }
+    .quick-nav a { color: inherit; text-decoration-thickness: 1px; }
     :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
 
     @media (max-width: 780px) {
@@ -300,11 +301,15 @@
       <span>Jan 2022 to Jul 2026</span>
       <span>Java · Spring Boot · Kafka · Redis · Elasticsearch</span>
     </div>
-    <p class="oneline">High availability · Distributed systems · AI-assisted operations</p>
+    <nav class="oneline quick-nav" aria-label="Case studies">
+      <a href="#high-availability">High availability</a> ·
+      <a href="#distributed-systems">Distributed systems</a> ·
+      <a href="#ai-operations">AI-assisted operations</a>
+    </nav>
   </header>
 
   <!-- ===================== 1. HIGH AVAILABILITY ===================== -->
-  <article class="record">
+  <article class="record" id="high-availability">
     <p class="domain">HIGH AVAILABILITY</p>
     <h2>Multi-Region Triple-Cluster Failover</h2>
     <p class="stack">Application · Redis · Kafka · Elasticsearch</p>
@@ -478,7 +483,7 @@
   </article>
 
   <!-- ===================== 2. DISTRIBUTED SYSTEMS ===================== -->
-  <article class="record">
+  <article class="record" id="distributed-systems">
     <p class="domain">DISTRIBUTED SYSTEMS</p>
     <h2>Event-Driven Architecture With Real-Time and Resync Processing</h2>
     <p class="stack">Kafka · eventually consistent read model · rate-controlled backfill</p>
@@ -619,7 +624,7 @@
   </article>
 
   <!-- ===================== 3. OPERABILITY ===================== -->
-  <article class="record">
+  <article class="record" id="ai-operations">
     <p class="domain">AI-ASSISTED OPERATIONS</p>
     <h2>Automated Production Log Triage Across 10+ Services</h2>
     <p class="stack">Scheduled CI job · coding agent · knowledge base in version control · Jira automation</p>
@@ -686,7 +691,7 @@
           <text class="t-name" x="294" y="140">Agent run</text>
           <text class="t-sub"  x="294" y="164">normalize service logs</text>
           <text class="t-sub"  x="294" y="184">evaluate warnings and errors</text>
-          <text class="t-sig"  x="294" y="214">surface unfamiliar or risky patterns</text>
+          <text class="t-sig"  x="294" y="214">flag unfamiliar or risky patterns</text>
 
           <rect class="box" x="276" y="280" width="250" height="74" rx="2"/>
           <text class="t-name" x="294" y="308">Knowledge base</text>
