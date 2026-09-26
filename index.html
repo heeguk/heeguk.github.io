@@ -96,9 +96,8 @@
   .pitch {
     font-size: clamp(15.5px, 1.7vw, 17px);
     color: var(--ink-2);
-    max-width: 64ch;
     margin: -6px 0 18px;
-    text-wrap: pretty;
+    white-space: nowrap;
   }
 
   .contact {
@@ -251,12 +250,11 @@
     margin: -6px 0 28px;
     padding-left: 16px;
     border-left: 3px solid var(--signal);
-    font-size: 17px;
+    font-size: min(15px, calc((100vw - 100px) / 66.5));
     font-weight: 500;
     line-height: 1.5;
     color: var(--ink);
-    max-width: 82ch;
-    text-wrap: pretty;
+    white-space: nowrap;
   }
 
   .case-meta span {
@@ -434,6 +432,10 @@
   a { color: var(--signal); text-underline-offset: 3px; }
   :focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
 
+  @media (max-width: 900px) {
+    .impact { font-size: 15px; white-space: normal; }
+  }
+
   @media (max-width: 780px) {
     .sheet { padding: 0 18px 68px; }
     .masthead { padding-top: 46px; }
@@ -446,6 +448,7 @@
     .profile-side {
       white-space: normal;
     }
+    .pitch { white-space: normal; }
   }
 
 
