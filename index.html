@@ -358,7 +358,7 @@
 
   .plate svg {
     display: block;
-    max-width: 100%;
+    width: 100%;
     height: auto;
     min-width: 700px;
   }
@@ -367,8 +367,6 @@
     margin-top: 13px;
     font-size: 13.5px;
     color: var(--ink-2);
-    max-width: 104ch;
-    text-wrap: pretty;
   }
 
   figcaption b { color: var(--ink); font-weight: 600; }
@@ -396,16 +394,16 @@
   .mk-s { fill: var(--signal); }
   .divider { stroke: var(--rule); stroke-width: 1; }
 
-  .t-eye  { fill: var(--ink-3); font-family: var(--mono); font-size: 10px; letter-spacing: .18em; }
-  .t-reg  { fill: var(--ink-3); font-family: var(--mono); font-size: 10px; letter-spacing: .14em; }
-  .t-ttl  { fill: var(--ink); font-family: var(--sans); font-size: 15px; font-weight: 700; }
-  .t-name { fill: var(--ink); font-family: var(--sans); font-size: 13px; font-weight: 600; }
-  .t-row  { fill: var(--ink-2); font-family: var(--mono); font-size: 10.5px; }
-  .t-sub  { fill: var(--ink-3); font-family: var(--mono); font-size: 9.5px; }
-  .t-arw  { fill: var(--ink-3); font-family: var(--mono); font-size: 9.5px; }
-  .t-sig  { fill: var(--signal); font-family: var(--mono); font-size: 10.5px; font-weight: 500; }
-  .t-sigb { fill: var(--signal); font-family: var(--sans); font-size: 13px; font-weight: 600; }
-  .t-crit { fill: var(--critical); font-family: var(--mono); font-size: 10.5px; font-weight: 500; }
+  .t-eye  { fill: var(--ink-3); font-family: var(--mono); font-size: 11px; letter-spacing: .18em; }
+  .t-reg  { fill: var(--ink-3); font-family: var(--mono); font-size: 11px; letter-spacing: .14em; }
+  .t-ttl  { fill: var(--ink); font-family: var(--sans); font-size: 16px; font-weight: 700; }
+  .t-name { fill: var(--ink); font-family: var(--sans); font-size: 14px; font-weight: 600; }
+  .t-row  { fill: var(--ink-2); font-family: var(--mono); font-size: 11.5px; }
+  .t-sub  { fill: var(--ink-3); font-family: var(--mono); font-size: 10.5px; }
+  .t-arw  { fill: var(--ink-3); font-family: var(--mono); font-size: 10.5px; }
+  .t-sig  { fill: var(--signal); font-family: var(--mono); font-size: 11.5px; font-weight: 500; }
+  .t-sigb { fill: var(--signal); font-family: var(--sans); font-size: 14px; font-weight: 600; }
+  .t-crit { fill: var(--critical); font-family: var(--mono); font-size: 11.5px; font-weight: 500; }
   .dim    { opacity: .4; }
 
   /* ---------- also shipped ---------- */
@@ -815,7 +813,8 @@
           <text class="t-sig" x="40" y="80">once a day, CI runner</text>
           <rect class="box" x="24" y="150" width="200" height="74" rx="2"/>
           <text class="t-name" x="40" y="178">10+ services</text>
-          <text class="t-sub" x="40" y="200">each with its own log format</text>
+          <text class="t-sub" x="40" y="200">each with its own</text>
+          <text class="t-sub" x="40" y="215">log format</text>
           <path class="l-s" d="M 124 92 L 124 138 L 272 138" marker-end="url(#cs)"/>
           <text class="t-sig" x="134" y="128">triggers</text>
           <line class="l-n" x1="226" y1="187" x2="272" y2="187" marker-end="url(#cn)"/>
